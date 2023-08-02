@@ -6,6 +6,8 @@ import FormField from './FormField';
 import { categoryFilters } from '@/constants';
 import CustomMenu from './CustomMenu';
 import Button from './Button';
+import { createNewProject, fetchToken } from '@/lib/actions';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   type: string;
@@ -13,7 +15,35 @@ type Props = {
 };
 
 const ProjectForm = ({ type, session }: Props) => {
-  const handleFormSubmit = (e: React.FormEvent) => {};
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    image: '',
+    title: '',
+    description: '',
+    liveSiteUrl: '',
+    githubUrl: '',
+    category: '',
+  });
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setIsSubmitting(true);
+    try {
+      const { token } = await fetchToken();
+      if (type === 'create') {
+        await createNewProject(form, session?.user?.id, token);
+
+        router.push('/');
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleChangeImage = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const file = e.target.files?.[0];
@@ -37,16 +67,6 @@ const ProjectForm = ({ type, session }: Props) => {
   const handleStateChange = (fieldName: string, value: string) => {
     setForm((prev) => ({ ...prev, [fieldName]: value }));
   };
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [form, setForm] = useState({
-    image: null,
-    title: '',
-    description: '',
-    liveSiteUrl: '',
-    githubUrl: '',
-    category: '',
-  });
 
   return (
     <form onSubmit={handleFormSubmit} className="flexStart form">
@@ -97,12 +117,6 @@ const ProjectForm = ({ type, session }: Props) => {
         state={form.githubUrl}
         placeholder="https://github.com/"
         setState={(value) => handleStateChange('githubUrl', value)}
-      />
-      <FormField
-        title="Title"
-        state={form.title}
-        placeholder="Flexibble"
-        setState={(value) => handleStateChange('title', value)}
       />
 
       {/* CustomInput Category... */}
