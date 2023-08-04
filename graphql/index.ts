@@ -37,7 +37,7 @@ export const deleteProjectMutation = `
     }
   }
 `;
-      
+
 export const createUserMutation = `
 	mutation CreateUser($input: UserCreateInput!) {
 		userCreate(input: $input) {
@@ -52,6 +52,36 @@ export const createUserMutation = `
 			}
 		}
 	}
+`;
+
+export const projectsQueryAll = `
+  query ProjectSearch {
+    projectSearch(first: 10) {
+      pageInfo {
+        hasPreviousPage
+        hasNextPage
+        startCursor
+        endCursor
+      }
+      edges {
+        node {
+          title
+          description
+          image
+          liveSiteUrl
+          githubUrl
+          category
+          id
+          createdBy {
+            id
+            email
+            name
+            avatarUrl
+          }
+        }
+      }
+    }
+  }
 `;
 
 export const projectsQuery = `
@@ -117,7 +147,7 @@ export const getUserQuery = `
     }
   }
 `;
-      
+
 export const getProjectsOfUserQuery = `
   query getUserProjects($id: ID!, $last: Int = 4) {
     user(by: { id: $id }) {
